@@ -14,6 +14,6 @@ export const responseSending = (
     res.status(statusCode).json({
         success,
         message,
-        data
+        ...data
     });
 }
