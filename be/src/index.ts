@@ -2,6 +2,7 @@ import express from 'express';
 import DBConnect from './config/db';
 import dotenv from 'dotenv';
 import routes from './route/index';
+import passportJWT from "./config/passportJWT";
 const app = express();
 
 
@@ -10,6 +11,7 @@ DBConnect();
 
 const PORT = process.env.PORT || 3000;
 
+app.use(passportJWT.initialize());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/api/v1', routes);
