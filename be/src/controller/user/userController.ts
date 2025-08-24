@@ -1,26 +1,48 @@
 import { AuthenticatedRequestHandler } from "../../config/passportJWT";
+import User from "../../model/userSchema";
 import { responseSending } from "../../utils/responseSending";
 
 export const getUserDetails: AuthenticatedRequestHandler = async (req, res) => {
     try {
-        console.log('getUserDetails called, req.user:', req.user); // Debug log
-
-        // Check if user exists in request (set by passport middleware)
-        if (!req.user || !(req.user as any)._id) {
-            console.log('No user found in request'); // Debug log
-            return responseSending(res, 401, false, "User not authenticated");
+        if (req.user instanceof User) {
+            const userId = req.user._id;
+            if (!userId) {
+                return responseSending(res, 400, false, "Please sign In to continue");
+            }
+            const user = await User.findById(userId).select("-password");
+            if (!user) {
+                return responseSending(res, 404, false, "User not found");
+            }
+            responseSending(res, 200, true, "User details found", { user });
         }
-
-        const userId = (req.user as any)._id;
-        console.log('Looking for user with ID:', userId); // Debug log
-
-        // Since req.user is already the full user object from passport, we can use it directly
-        const user = req.user;
-
-        console.log('User found:', (user as any).email); // Debug log
-        responseSending(res, 200, true, "User details found", { user });
-    } catch (error: any) {
-        console.error("Error in getUserDetails", error);
+    } catch (error) {
+        console.error(`Error in sedning user details ${error}`);
         responseSending(res, 500, false, "Internal server error");
     }
-}
+};
+
+export const updateUserDetails: AuthenticatedRequestHandler = async (req, res) => {
+    try {
+        const { name, email } = req.body;
+        if (!name) {
+            return responseSending(res, 400, false, "Name is required");
+        }
+        if (req.user instanceof User) {
+            const userId = req.user._id;
+            if (!userId) {
+                return responseSending(res, 404, false, "User id not found");
+            }
+            const user = await User.findByIdAndUpdate(userId, { name, email });
+            if (!user) {
+                return responseSending(res, 404, false, "User not found");
+            }
+            responseSending(res, 200, true, "Sucessfully updated your details", {
+                name,
+                email,
+            });
+        }
+    } catch (error: any) {
+        console.error(`Error in updating user ${error}`);
+        responseSending(res, 500, false, "Internal server error");
+    }
+};

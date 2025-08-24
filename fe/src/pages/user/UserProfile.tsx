@@ -1,14 +1,22 @@
 import type React from "react";
-import { useSelector } from "react-redux";
-import { selectLoggedIn } from "../../store/slices/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { selectLoggedIn, updateUserDetails } from "../../store/slices/authSlice";
 import { useEffect, useState } from "react";
 import SideBar from "../../components/Sidebar";
+import { useConfig } from "../../hooks/useConfig";
+import toast from "react-hot-toast";
+import apiServer from "../../api/apiServer";
+import type { IAuthResponse } from "../../store/slices/authSlice";
 
 const UserProfile: React.FC = () => {
     const loggedIn = useSelector(selectLoggedIn);
     const [name, setName] = useState<string>("");
     const [email, setEmail] = useState<string>("");
     const [edit, setEdit] = useState<boolean>(false);
+    const dispatch = useDispatch();
+    const { configUsingToken } = useConfig();
+
+
     useEffect(() => {
         if (loggedIn?.name) {
             setName(loggedIn.name);
@@ -17,6 +25,28 @@ const UserProfile: React.FC = () => {
             setEmail(loggedIn.email);
         }
     }, [loggedIn]);
+
+    const handleEdit = () => {
+        setEdit((edit) => !edit);
+    }
+
+    const handleSave = async () => {
+        try {
+            const { data } = await apiServer.post<IAuthResponse>(
+                "/api/v1/user/update", { name, email }, configUsingToken
+            );
+
+            if (data.success) {
+                toast.success(data.message);
+                dispatch(updateUserDetails({ name, email }));
+                setEdit(false);
+            } else {
+                toast.error(data.message);
+            }
+        } catch (error: any) {
+            toast.error("Internal server error");
+        }
+    }
 
     return (
         <div className="flex w-full pr-2 h-screen">
@@ -69,7 +99,7 @@ const UserProfile: React.FC = () => {
                             <button
                                 type="button"
                                 className="bg-blue-500 text-white py-2 px-4 rounded-md focus:outline-none hover:bg-blue-600"
-                                onClick={() => setEdit(true)}
+                                onClick={edit ? handleSave : handleEdit}
                             >
                                 {edit ? "Save" : "Edit"}
                             </button>

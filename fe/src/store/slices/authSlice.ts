@@ -31,7 +31,7 @@ interface ISignUpPayload {
 }
 
 
-interface IAuthResponse {
+export interface IAuthResponse {
   success: boolean;
   message: string;
   user?: IUser;
@@ -147,6 +147,14 @@ const authSlice = createSlice({
       toast.success('Logged out successfully');
       navigate('/sign-in');
     },
+
+    updateUserDetails: (state, action) => {
+      const { name, email } = action.payload;
+      if (state.loggedIn) {
+        state.loggedIn.name = name;
+        state.loggedIn.email = email;
+      }
+    }
   },
   extraReducers: (builder) => {
     // Login user
@@ -199,7 +207,7 @@ const authSlice = createSlice({
 });
 
 // Export actions
-export const { logOutUser } = authSlice.actions;
+export const { logOutUser, updateUserDetails } = authSlice.actions;
 
 // Export selectors
 export const selectLoggedIn = (state: RootState) => state.auth.loggedIn;
