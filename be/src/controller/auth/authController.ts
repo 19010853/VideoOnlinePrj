@@ -5,6 +5,7 @@ import { hashPassword} from "../../utils/hashPassword";
 import crypto from "crypto";
 import { generateJWT } from "../../utils/generateJWT";
 import { comparePassword } from "../../utils/comparePassword";
+
 interface IRegisterRequest extends Request {
     body: {
         email: string;
