@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import toast from 'react-hot-toast';
 import apiServer from '../../api/apiServer';
 import type { RootState } from '..';
+import { useNavigate, type NavigateFunction } from 'react-router-dom';
 
 // Types
 interface IUser {
@@ -21,6 +22,7 @@ export interface AuthState {
 interface ISignInPayload {
   email: string;
   password: string;
+  navigate: NavigateFunction;
 }
 
 interface ISignUpPayload {
@@ -51,7 +53,7 @@ export const logInUser = createAsyncThunk<
   "auth/sign-in-user",
   async (payload, thunkAPI) => {
     try {
-      const { email, password } = payload;
+      const { email, password, navigate } = payload;
 
       const { data } = await apiServer.post<IAuthResponse>(
         "/api/v1/auth/sign-in",
@@ -62,6 +64,7 @@ export const logInUser = createAsyncThunk<
         // Lưu token + hiện thông báo
         toast.success("Login successful");
         localStorage.setItem("token", data.user.token);
+        navigate("/user/profile")
 
         return data.user.token; // ✅ trả về cả user (IUser)
       } else {
@@ -102,18 +105,47 @@ export const registerUser = createAsyncThunk<
   }
 );
 
+export const fetchUserDetails = createAsyncThunk<
+  IUser | null,
+  void,
+  { rejectValue: string }
+>("auth/fetch-user-details", async (_, thunkAPI) => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      return thunkAPI.rejectWithValue("No token found");
+    }
+
+    const { data } = await apiServer.get<IAuthResponse>("/api/v1/user/profile",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      }
+    )
+
+    if (data.success && data.user) {
+      return data.user;
+    } else {
+      return thunkAPI.rejectWithValue(data.message || "Failed to fetch user data");
+    }
+
+  } catch (error: any) {
+    return thunkAPI.rejectWithValue(error.response?.data?.message || "Failed to fetch user data")
+  }
+})
+
 // Create the slice
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    logout: (state) => {
-      state.loggedIn = null;
+    logOutUser: (state, action) => {
+      const navigate = action.payload;
       localStorage.removeItem('token');
+      state.loggedIn = null;
       toast.success('Logged out successfully');
-    },
-    clearError: (state) => {
-      state.isLoading = false;
+      navigate('/sign-in');
     },
   },
   extraReducers: (builder) => {
@@ -150,11 +182,24 @@ const authSlice = createSlice({
       .addCase(registerUser.rejected, (state) => {
         state.isLoading = false;
       });
+
+    // Fetch user details
+    builder
+      .addCase(fetchUserDetails.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchUserDetails.fulfilled, (state, action) => {
+        state.loggedIn = action.payload;
+        state.isLoading = false;
+      })
+      .addCase(fetchUserDetails.rejected, (state) => {
+        state.isLoading = false;
+      })
   }
 });
 
 // Export actions
-export const { logout, clearError } = authSlice.actions;
+export const { logOutUser } = authSlice.actions;
 
 // Export selectors
 export const selectLoggedIn = (state: RootState) => state.auth.loggedIn;
