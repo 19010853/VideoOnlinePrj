@@ -7,9 +7,15 @@ import UserProfile from "./pages/user/UserProfile";
 import ChangePassword from "./pages/auth/ChangePassword";
 import ChangePasswordEmail from "./pages/auth/ChangePasswordEmail";
 import UserUpload from "./pages/user/UserUpload";
+import AllVideos from "./pages/AllVideos";
+import SingleVideoPage from "./pages/SingleVideoPage";
+import MyVideos from "./pages/user/MyVideos";
+import UpdateVideo from "./pages/user/UpdateVideo";
 
 export const router = createBrowserRouter([
     { path: '/', element: <Home /> },
+    { path: '/all-videos', element: <AllVideos /> },
+    { path: "/video/:id", element: <SingleVideoPage /> },
     { path: "/sign-up", element: <ProtectedRoute element={<Register />} /> },
     { path: "/sign-in", element: <ProtectedRoute element={<Login />} /> },
     {
@@ -28,5 +34,12 @@ export const router = createBrowserRouter([
         path: "/user/upload",
         element: <ProtectedRouteHome element={<UserUpload />} />
     },
-    { path: '/all-videos', element: <div className="p-8 text-center"><h1 className="text-2xl">All Videos - Coming Soon</h1></div> }
+    {
+        path: "/user/edit/my-videos",
+        element: <ProtectedRouteHome element={<MyVideos />} />
+    },
+    {
+        path: "/user/edit/my-video/",
+        element: <ProtectedRouteHome element={<UpdateVideo />} />
+    }
 ]);
