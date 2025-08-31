@@ -4,9 +4,10 @@ import Layout from "../components/Layout";
 import { useDispatch, useSelector } from "react-redux";
 import ReactPlayer from "react-player";
 import { FaPlay } from "react-icons/fa6";
-import Slider from "../components/Slider";
+import VideoSlider from "../components/Slider";
 import type { AppDispatch } from "../store";
 import { fetchPublicVideos, selectLoading, selectPublicVideos } from "../store/slices/videoSlice";
+import Skeleton from "react-loading-skeleton";
 
 const Home: React.FC = () => {
   const publicVideos = useSelector(selectPublicVideos);
@@ -31,9 +32,8 @@ const Home: React.FC = () => {
               Job Ready MERN Stack Course with AWS
             </h1>
             <p className="text-lg mb-6 md:text-xl font-extralight text-white">
-              Enhance your skills with our comprehensive MERN Stack course,
-              including AWS deployment and real-world projects. Get ready for a
-              career in web development.
+              Learn to build scalable web applications using the MERN stack,
+              with hands-on projects and real-world scenarios.
             </p>
             <button
               className="bg-blue-500 text-white w-16 h-16 rounded-full flex  animate-scale-pulse justify-center items-center mt-4
@@ -72,10 +72,15 @@ const Home: React.FC = () => {
         <h2 className="capitalize text-textTwo  text-lg sm:text-2xl md:text-3xl lg:text-4xl  mt-2 p-4">
           Recently Added
         </h2>
-
-        <div className="p-4">
-          <Slider videos={publicVideos || []} />
-        </div>
+        {isLoading ? (
+          <div className="w-full flex justify-center">
+            <Skeleton height={300} width={800} />
+          </div>
+        ) : (
+          <div className="p-4">
+            <VideoSlider videos={publicVideos || []} />
+          </div>
+        )}
       </main>
     </Layout>
   );

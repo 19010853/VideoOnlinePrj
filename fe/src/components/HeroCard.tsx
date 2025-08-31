@@ -18,7 +18,7 @@ interface IHeroCardProps {
   video: IVideo;
 }
 
-const VideoCard: React.FC<IHeroCardProps> = ({ video }) => {
+const HeroCard: React.FC<IHeroCardProps> = ({ video }) => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isHovered, setIsHovered] = useState<boolean>(false);
@@ -152,4 +152,4 @@ const VideoCard: React.FC<IHeroCardProps> = ({ video }) => {
   );
 };
 
-export default VideoCard;
+export default HeroCard;

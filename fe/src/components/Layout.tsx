@@ -1,109 +1,55 @@
 import React from "react";
 import type { ReactNode } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../store";
-import { logout } from "../store/slices/authSlice";
-import toast from "react-hot-toast";
+import { FaGithub, FaLinkedin, FaTwitter } from "react-icons/fa";
+import { NavLink } from "react-router-dom";
 
-interface ILayoutProps {
+interface LayoutProps {
   children: ReactNode;
 }
 
-const Layout: React.FC<ILayoutProps> = ({ children }) => {
-  const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-  const { loggedIn } = useAppSelector((state) => state.auth);
-
-  const handleLogout = async () => {
-    try {
-      dispatch(logout());
-      toast.success("Logged out successfully");
-      navigate("/sign-in");
-    } catch (error) {
-      toast.error("Logout failed");
-    }
-  };
-
+const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const token = localStorage.getItem("token");
   return (
-    <div className="flex flex-col min-h-screen bg-gray-200">
-      {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 bg-blue-600 text-white border-b border-black z-50">
-        <div className="flex justify-between items-center p-4">
-          <div className="flex items-center space-x-4">
-            <Link to="/" className="text-white no-underline capitalize hover:underline font-semibold">
-              Video Hub
-            </Link>
-          </div>
-
-          <div className="flex items-center gap-4 md:gap-6 lg:gap-8">
-            <Link to="/" className="text-white no-underline capitalize hover:underline">
-              Home
-            </Link>
-            <Link to="/all-videos" className="text-white no-underline capitalize hover:underline">
-              All Videos
-            </Link>
-
-            {loggedIn ? (
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-gray-200">
-                  Welcome, {loggedIn.email}
-                </span>
-                <button
-                  onClick={handleLogout}
-                  className="text-white hover:text-gray-200 transition-colors"
-                >
-                  Logout
-                </button>
-              </div>
-            ) : (
-              <Link to="/sign-in" className="text-white no-underline capitalize hover:underline">
-                Sign in
-              </Link>
-            )}
-          </div>
+    <div className="min-h-screen bg-bgTwo flex flex-col">
+      <nav className="flex items-center bg-bgFive p-4 justify-end md:text-lg border-b-black border-b-[1px] fixed top-0 z-50 w-full text-white">
+        <div className="flex items-center gap-3 md:gap-5 lg:gap-7 capitalize">
+          <NavLink to={"/"}>Home</NavLink>
+          <NavLink to={"/all-videos"}>All Videos</NavLink>
+          {token ? (
+            <NavLink to={"/user/dashboard"}>Dashboard </NavLink>
+          ) : (
+            <NavLink to={"/sign-in"}>Sign in </NavLink>
+          )}
         </div>
       </nav>
-
-      {/* Main */}
-      <main className="flex-1 mt-16 flex flex-col items-center">
+      <main className="flex-1 flex flex-col items-center w-full mt-16">
         {children}
       </main>
-
-      {/* Footer */}
-      <footer className="bg-black text-white py-8 text-center border-t border-black">
-        <div className="flex justify-center gap-3 mb-4">
+      <footer className="bg-black text-center py-6 border-t-[1px] border-t-black z-50">
+        <div className="flex justify-center gap-6 mb-4 text-white">
           <a
-            href="https://github.com/krishnamahto021"
+            href="https://github.com/19010853"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="GitHub"
-            className="text-white hover:text-gray-300 transition-colors"
           >
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-            </svg>
+            <FaGithub size={24} />
           </a>
           <a
-            href=""
+            href="https://www.linkedin.com/in/19010853"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="LinkedIn"
-            className="text-white hover:text-gray-300 transition-colors"
           >
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-            </svg>
+            <FaLinkedin size={24} />
           </a>
           <a
-            href=""
+            href="https://twitter.com/19010853"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Twitter"
-            className="text-white hover:text-gray-300 transition-colors"
           >
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
-            </svg>
+            <FaTwitter size={24} />
           </a>
         </div>
       </footer>

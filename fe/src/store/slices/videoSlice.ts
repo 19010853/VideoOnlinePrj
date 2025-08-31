@@ -168,6 +168,20 @@ export const updateVideo = createAsyncThunk<IVideo, { id: string, configUsingTok
     }
 })
 
+// Async thunk for searching videos
+export const getSearchVideos = createAsyncThunk<IVideo[], string, { rejectValue: string; state: RootState }>("video/search", async (query, thunkApi) => {
+    try {
+        const { publicVideos, videos } = thunkApi.getState().video;
+        const combinedVideos = [...(publicVideos || []), ...(videos || [])];
+        const filteredVideos = combinedVideos.filter((video) => video.title?.toLowerCase().includes(query.toLowerCase()) ||
+            video.description?.toLowerCase().includes(query.toLowerCase()));
+        return filteredVideos;
+
+    } catch (error: any) {
+        return thunkApi.rejectWithValue(error);
+    }
+})
+
 // Video slice
 const videoSlice = createSlice({
     name: "video",
@@ -213,6 +227,9 @@ const videoSlice = createSlice({
                     state.videos[index] = action.payload;
                 }
             })
+            .addCase(getSearchVideos.fulfilled, (state, action) => {
+                state.searchVideos = action.payload;
+            })
     },
 });
 
@@ -221,6 +238,7 @@ export const selectPublicVideos = (state: RootState) => state.video.publicVideos
 export const selectLoading = (state: RootState) => state.video.isLoading;
 export const selectEditVideo = (state: RootState) => state.video.editVideo;
 export const selectVideosForLoggedInUser = (state: RootState) => state.video.videos;
+export const selectSearchVideos = (state: RootState) => state.video.searchVideos;
 
 // Actions
 export const { setEditVideo, clearVideos } = videoSlice.actions;
