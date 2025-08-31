@@ -1,28 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import Layout from "../../components/Layout";
-import { useAppDispatch, useAppSelector } from "../../store";
+import { type AppDispatch } from "../../store";
 import { registerUser } from "../../store/slices/authSlice";
 import type { IFormData } from "../../types";
+import { useDispatch } from 'react-redux';
 
 const Register: React.FC = () => {
-  const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-  const { isLoading, loggedIn } = useAppSelector((state) => state.auth);
-
   const [formData, setFormData] = useState<IFormData>({
     email: "",
     password: "",
   });
-
-  useEffect(() => {
-    if (loggedIn) {
-      toast.success("Registration successful!");
-      navigate("/");
-    }
-  }, [loggedIn, navigate]);
-
+  const [loading, setIsLoading] = useState<boolean>(false);
+  const dispatch = useDispatch<AppDispatch>();
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -30,89 +20,104 @@ const Register: React.FC = () => {
       [name]: value,
     }));
   };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    if (!formData.email || !formData.password) {
-      toast.error("Please fill in all fields");
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      toast.error("Password must be at least 6 characters long");
-      return;
-    }
-
+    setIsLoading(true);
     dispatch(registerUser(formData));
+    setIsLoading(false);
   };
-
   return (
     <Layout>
-      <div className="max-w-md mx-auto flex justify-center p-4">
-        <div className="w-full bg-white shadow-lg rounded-lg p-8 mt-16">
+      <div className="flex items-center justify-center p-4 w-full">
+        <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-6">
           <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">
-            Join us Today
+            Join Us Today
           </h1>
-
-          <form onSubmit={handleSubmit} className="mt-6">
-            {/* Email */}
-            <div className="mb-4">
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Email
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-                  </svg>
-                </div>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  placeholder="Enter your email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
+              <input
+                type="email"
+                name="email"
+                required
+                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                placeholder="Enter your email"
+                value={formData.email}
+                onChange={handleChange}
+              />
             </div>
-
-            {/* Password */}
-            <div className="mb-4">
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Password
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  </svg>
-                </div>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  placeholder="Enter your password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-              <p className="text-xs text-gray-500 mt-1">Password must be at least 6 characters long</p>
+              <input
+                type="password"
+                name="password"
+                required
+                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                placeholder="Enter your password"
+                value={formData.password}
+                onChange={handleChange}
+              />
             </div>
 
-            {/* Button */}
+            {/* Sign Up Button with Loader */}
             <button
               type="submit"
-              disabled={isLoading}
-              className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`w-full py-3 px-4 bg-green-500 text-white font-bold rounded-md shadow-md transition duration-300 
+              disabled:bg-green-300 disabled:cursor-not-allowed flex items-center justify-center ${
+                loading ? "bg-opacity-90" : "hover:bg-opacity-90"
+              }`}
+              disabled={loading} // Disable button when loading
             >
-              {isLoading ? "Creating Account..." : "Sign Up"}
+              {loading ? ( // Show loader if loading
+                <>
+                  <svg
+                    className="animate-spin mr-2 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8h8a8 8 0 11-16 0z"
+                    ></path>
+                  </svg>
+                  Signing Up...
+                </>
+              ) : (
+                "Sign Up"
+              )}
             </button>
+
+            <div className="text-center mt-4">
+              <span className="text-sm text-gray-600">
+                Already have an account?
+              </span>{" "}
+              <Link
+                to="/sign-in"
+                className="text-sm font-medium text-green-600 hover:text-green-500"
+              >
+                Log in
+              </Link>
+            </div>
           </form>
         </div>
       </div>
