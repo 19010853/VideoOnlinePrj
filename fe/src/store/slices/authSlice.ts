@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import toast from 'react-hot-toast';
 import apiServer from '../../api/apiServer';
 import type { RootState } from '..';
-import { useNavigate, type NavigateFunction } from 'react-router-dom';
+import type { NavigateFunction } from 'react-router-dom';
 
 // Types
 interface IUser {
