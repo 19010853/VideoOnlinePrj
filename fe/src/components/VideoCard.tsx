@@ -37,7 +37,7 @@ const VideoCard: React.FC<IVideoCardProps> = ({ video }) => {
         try {
             setIsLoading(true);
             await dispatch(downloadVideo({ id: _id })).unwrap();
-        } catch (error) {
+        } catch {
             toast.error("Download failed. Please try again.");
         } finally {
             setIsLoading(false);
@@ -45,7 +45,7 @@ const VideoCard: React.FC<IVideoCardProps> = ({ video }) => {
     }
 
     const handleShare = () => {
-        const videoLink = `http://localhost:5173/video/${_id}`;
+        const videoLink = `https://video-online-theta.vercel.app/video/${_id}`;
         navigator.clipboard.writeText(videoLink).then(() => {
             toast.success(`Link copied to clipboard`);
         });
@@ -61,7 +61,7 @@ const VideoCard: React.FC<IVideoCardProps> = ({ video }) => {
     const handleDelete = async () => {
         try {
             await dispatch(deleteVideo({ id: _id, configUsingToken }));
-        } catch (error) {
+        } catch {
             toast.error("Delete failed. Please try again.");
         }
     }

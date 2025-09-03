@@ -11,7 +11,7 @@ connectDb();
 
 // cors options
 const corsOptions = {
-  origin: ["http://localhost:5173"],
+  origin: ["http://localhost:5173", "https://video-online-beta.vercel.app"],
   credentials: true,
   optionSuccessStatus: 200,
 };
@@ -22,9 +22,14 @@ app.use(passportJWT.initialize());
 
 const port = process.env.PORT || 3000;
 
+app.get("/", (req, res) => {
+  res.send("Nguyen Minh Khoi")
+})
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/v1", routes);
 app.listen(port, () => {
   console.log(`server running on the port ${port}`);
 });
+

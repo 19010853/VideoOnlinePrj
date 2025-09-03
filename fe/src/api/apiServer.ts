@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const apiServer = axios.create({
-    baseURL: 'http://localhost:3000',
+    baseURL: 'https://video-online-beta.vercel.app/',
     withCredentials: true,
 });
 
